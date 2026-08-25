@@ -35,7 +35,7 @@ def count():
 ######################################################################
 @app.route("/picture", methods=["GET"])
 def get_pictures():
-    pass
+    return jsonify(data), 200
 
 ######################################################################
 # GET A PICTURE
@@ -44,28 +44,51 @@ def get_pictures():
 
 @app.route("/picture/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
-    pass
-
-
+    for picture in data:
+        if picture["id"] == id:
+            return jsonify(picture), 200
+    return {"message": "Picture not found"}, 404
 ######################################################################
 # CREATE A PICTURE
 ######################################################################
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    pass
+    picture = request.get_json()
+    if not picture:
+        return {"Message": "Invalid input parameter"}, 422
+
+    # Verificar si el ID ya existe
+    for item in data:
+        if item["id"] == picture["id"]:
+            return {"Message": f"picture with id {picture['id']} already present"}, 302
+
+    data.append(picture)
+    return jsonify(picture), 201
 
 ######################################################################
 # UPDATE A PICTURE
 ######################################################################
-
-
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-    pass
+    picture_data = request.get_json()
+    if not picture_data:
+        return {"message": "Invalid input parameter"}, 422
+
+    for index, picture in enumerate(data):
+        if picture["id"] == id:
+            data[index] = picture_data
+            return jsonify(picture_data), 200
+
+    return {"message": "picture not found"}, 404
 
 ######################################################################
 # DELETE A PICTURE
 ######################################################################
 @app.route("/picture/<int:id>", methods=["DELETE"])
 def delete_picture(id):
-    pass
+    for index, picture in enumerate(data):
+        if picture["id"] == id:
+            del data[index]
+            return "", 204
+
+    return {"message": "picture not found"}, 404
